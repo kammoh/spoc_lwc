@@ -3,6 +3,8 @@
 // Virginia Tech
 // 05-31-2019
 
+`include "LWC_constants.vh"
+
 module Datapath(
 clk,
 rst,
@@ -234,11 +236,28 @@ endcase
 localparam INIT_ST = 1'b0,
            RUN_ST = 1'b1;		   
 
-always @(posedge clk)
-begin
-	if (rst == 1'b1) fsm_state <= INIT_ST; 
-	else fsm_state <= next_fsm_state;
-end
+
+generate
+	if (ASYNC_RSTN == 0) begin
+		always @(posedge clk)
+		begin
+			if (rst == 1'b1)
+				fsm_state <= INIT_ST; 
+			else
+				fsm_state <= next_fsm_state;
+		end
+    end
+	else begin
+		always @(posedge clk, negedge rst)
+		begin
+			if (rst == 1'b0)
+				fsm_state <= INIT_ST;
+			else
+				fsm_state <= next_fsm_state;
+		end
+    end
+endgenerate
+
 
 // State Process
 always @(fsm_state or start or rnd_done or step_done)

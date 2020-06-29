@@ -3,6 +3,8 @@
 // Virginia Tech
 // 05-31-2019
 
+`include "LWC_constants.vh"
+
 module Controller(
 
 // input
@@ -98,46 +100,92 @@ localparam RESET_ST = 4'b0000,
 localparam AD_TYPE = 4'b0001,
            KEY_WORDS = 3'b100,
 		   NPUB_WORDS = 3'b100;
-		   
-always @(posedge clk)
-begin
-	if (rst == 1'b1) fsm_state <= RESET_ST; 
+
+generate
+	if (ASYNC_RSTN == 0) begin
+		always @(posedge clk) begin
+			if (rst == 1'b1) 
+				fsm_state <= RESET_ST; 
+			else begin
+				fsm_state <= next_fsm_state;
+				if (clr_ld_ctr == 1)
+				    ld_ctr <= 0;
+		        if (en_ld_ctr == 1)
+				    ld_ctr <= ld_ctr + 1;
+				if (set_bdi_complete == 1)
+				    bdi_complete <= 1;
+				if (reset_bdi_complete == 1)
+				    bdi_complete <= 0;
+				if (set_bdo_complete == 1)
+				    bdo_complete <= 1;
+				if (reset_bdo_complete == 1)
+				    bdo_complete <= 0;
+				if (set_eoi_flag == 1)
+		           eoi_flag <= 1;
+		        if (reset_eoi_flag == 1)
+		           eoi_flag <= 0;
+		        if (set_eot_flag == 1)
+		           eot_flag <= 1;
+		        if (reset_eot_flag == 1)
+		           eot_flag <= 0;
+			    if (en_decrypt_reg == 1)
+				   decrypt_reg <= decrypt;
+				if (store_bdi_type == 1)
+					if (bdi_type == AD_TYPE)
+						bdi_type_reg <= 1;
+					else
+						bdi_type_reg <= 0;
+				if (store_bdi_partial == 1)
+					if (bdi_size[1] == 1 || bdi_size[0] ==1)
+						bdi_partial_reg <= 1;
+					else
+						bdi_partial_reg <= 0;
+			end
+		end
+    end
 	else begin
-		fsm_state <= next_fsm_state;
-		if (clr_ld_ctr == 1)
-		    ld_ctr <= 0;
-        if (en_ld_ctr == 1)
-		    ld_ctr <= ld_ctr + 1;
-		if (set_bdi_complete == 1)
-		    bdi_complete <= 1;
-		if (reset_bdi_complete == 1)
-		    bdi_complete <= 0;
-		if (set_bdo_complete == 1)
-		    bdo_complete <= 1;
-		if (reset_bdo_complete == 1)
-		    bdo_complete <= 0;
-		if (set_eoi_flag == 1)
-           eoi_flag <= 1;
-        if (reset_eoi_flag == 1)
-           eoi_flag <= 0;
-        if (set_eot_flag == 1)
-           eot_flag <= 1;
-        if (reset_eot_flag == 1)
-           eot_flag <= 0;
-	    if (en_decrypt_reg == 1)
-		   decrypt_reg <= decrypt;
-		if (store_bdi_type == 1)
-			if (bdi_type == AD_TYPE)
-				bdi_type_reg <= 1;
-			else
-				bdi_type_reg <= 0;
-		if (store_bdi_partial == 1)
-			if (bdi_size[1] == 1 || bdi_size[0] ==1)
-				bdi_partial_reg <= 1;
-			else
-				bdi_partial_reg <= 0;
-	end
-end
+		always @(posedge clk, negedge rst) begin
+			if (rst == 1'b0)
+				fsm_state <= RESET_ST;
+			else begin
+				fsm_state <= next_fsm_state;
+				if (clr_ld_ctr == 1)
+				    ld_ctr <= 0;
+		        if (en_ld_ctr == 1)
+				    ld_ctr <= ld_ctr + 1;
+				if (set_bdi_complete == 1)
+				    bdi_complete <= 1;
+				if (reset_bdi_complete == 1)
+				    bdi_complete <= 0;
+				if (set_bdo_complete == 1)
+				    bdo_complete <= 1;
+				if (reset_bdo_complete == 1)
+				    bdo_complete <= 0;
+				if (set_eoi_flag == 1)
+		           eoi_flag <= 1;
+		        if (reset_eoi_flag == 1)
+		           eoi_flag <= 0;
+		        if (set_eot_flag == 1)
+		           eot_flag <= 1;
+		        if (reset_eot_flag == 1)
+		           eot_flag <= 0;
+			    if (en_decrypt_reg == 1)
+				   decrypt_reg <= decrypt;
+				if (store_bdi_type == 1)
+					if (bdi_type == AD_TYPE)
+						bdi_type_reg <= 1;
+					else
+						bdi_type_reg <= 0;
+				if (store_bdi_partial == 1)
+					if (bdi_size[1] == 1 || bdi_size[0] ==1)
+						bdi_partial_reg <= 1;
+					else
+						bdi_partial_reg <= 0;
+			end
+		end
+    end
+endgenerate
+		   
 
 always @(fsm_state or key_update or key_valid or bdi_valid or ld_ctr or bdi_eoi or bdi_eot or perm_done or eoi_flag or
          eot_flag or bdi_complete or bdo_complete or perm_done or bdi_type_reg or bdo_ready or decrypt_reg or msg_auth_ready
