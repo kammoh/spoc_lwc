@@ -50,7 +50,7 @@ input start, init_state, bdo_complete, en_state_in, sel_tag, init_lock, lock_tag
 input en_trunc, init_trunc;
 input en_key, en_npub, en_bdi, clr_bdi, en_cum_size, bdi_partial_reg, bdi_complete, decrypt_reg;
 input [1:0] ctrl_word;
-input [2:0] bdi_type;
+input [3:0] bdi_type;
 input [2:0] bdi_size;
 input [PW-1:0] bdi;
 input [SW-1:0] key;
@@ -292,15 +292,14 @@ assign bdi_pad_input = (ctrl_word[1] == 0 || decrypt_reg == 0) ? bdi_reg : {ptct
 
 // compute padding
 
-assign bdi_pad_half = (cum_size == 4'b0001) ? {bdi_pad_input[63:56], 8'b1000_0000, {{48}{1'b0}}} : 64'bz;
-assign bdi_pad_half = (cum_size == 4'b0010) ? {bdi_pad_input[63:48], 8'b1000_0000, {{40}{1'b0}}} : 64'bz;
-assign bdi_pad_half = (cum_size == 4'b0011) ? {bdi_pad_input[63:40], 8'b1000_0000, {{32}{1'b0}}} : 64'bz;
-assign bdi_pad_half = (cum_size == 4'b0100) ? {bdi_pad_input[63:32], 8'b1000_0000, {{24}{1'b0}}} : 64'bz;
-assign bdi_pad_half = (cum_size == 4'b0101) ? {bdi_pad_input[63:24], 8'b1000_0000, {{16}{1'b0}}} : 64'bz;
-assign bdi_pad_half = (cum_size == 4'b0110) ? {bdi_pad_input[63:16], 8'b1000_0000, {{8}{1'b0}}} : 64'bz;
-assign bdi_pad_half = (cum_size == 4'b0111) ? {bdi_pad_input[63:8], 8'b1000_0000} : 64'bz;
-assign bdi_pad_half = (cum_size == 4'b1000) ? bdi_pad_input : 64'bz;
-assign bdi_pad_half = (cum_size == 4'b0000) ? 0 : 64'bz;
+assign bdi_pad_half = (cum_size == 4'b0001) ? {bdi_pad_input[63:56], 8'b1000_0000, {{48}{1'b0}}} :
+    (cum_size == 4'b0010) ? {bdi_pad_input[63:48], 8'b1000_0000, {{40}{1'b0}}} :
+    (cum_size == 4'b0011) ? {bdi_pad_input[63:40], 8'b1000_0000, {{32}{1'b0}}} :
+    (cum_size == 4'b0100) ? {bdi_pad_input[63:32], 8'b1000_0000, {{24}{1'b0}}} :
+    (cum_size == 4'b0101) ? {bdi_pad_input[63:24], 8'b1000_0000, {{16}{1'b0}}} :
+    (cum_size == 4'b0110) ? {bdi_pad_input[63:16], 8'b1000_0000, {{8}{1'b0}}} :
+    (cum_size == 4'b0111) ? {bdi_pad_input[63:8], 8'b1000_0000} :
+    (cum_size == 4'b1000) ? bdi_pad_input : 0;
 
 assign next_bdi_reg = (clr_bdi == 1) ? 0 :
                       (bdi_complete == 0) ? {bdi, {{32}{1'b0}}} : {bdi_reg[63:32], bdi};
@@ -373,10 +372,10 @@ assign tag_low = state[48:16];
 
 assign bdo_sel = {sel_tag, bdo_complete};
 
-assign bdo = (bdo_sel == 2'b00) ? ptct_high : 32'bz;
-assign bdo = (bdo_sel == 2'b01) ? ptct_low : 32'bz;
-assign bdo = (bdo_sel == 2'b10) ? tag_high : 32'bz;
-assign bdo = (bdo_sel == 2'b11) ? tag_low : 32'bz;
+assign bdo = (bdo_sel == 2'b00) ? ptct_high : 
+    (bdo_sel == 2'b01) ? ptct_low : 
+    (bdo_sel == 2'b10) ? tag_high : 
+    tag_low;
 
 assign msg_auth = (bdi_reg[63:32] == tag_high && bdi_reg[31:0] == tag_low) ? 1 : 0;
 

@@ -15,7 +15,7 @@ module CryptoCore(
         key_valid,
         key_update,
         hash_in,
-        decrypt,
+        decrypt_in,
         bdi_ready,
         bdi_valid,
         bdi_type, 
@@ -36,7 +36,7 @@ module CryptoCore(
         msg_auth_valid
     );
 	
-input clk, rst, key_valid, key_update, hash_in, decrypt, bdi_valid, bdi_eot, bdi_eoi, bdo_ready, msg_auth_ready;
+input clk, rst, key_valid, key_update, hash_in, decrypt_in, bdi_valid, bdi_eot, bdi_eoi, bdo_ready, msg_auth_ready;
 input [2:0] bdi_size;
 input [3:0] bdi_type, bdi_valid_bytes, bdi_pad_loc;
 input [31:0] key, bdi;
@@ -49,6 +49,8 @@ wire en_key, en_npub, en_bdi, clr_bdi, en_cum_size, sel_tag;
 wire start, done, init_state, bdo_complete, bdi_complete, en_state, lock_tag_state, bdi_partial_reg, msg_auth;
 wire en_trunc, trunc_complete, init_trunc, decrypt_reg, init_lock;
 wire [1:0] ctrl_word;
+
+assign bdo_type = 0;
 
 Datapath data_path_inst(
         .clk(clk),
@@ -95,7 +97,7 @@ Controller ctrl_inst(
         .key_ready(key_ready),
         .key_valid(key_valid),
         .key_update(key_update),
-        .decrypt(decrypt),
+        .decrypt(decrypt_in),
         .bdi_ready(bdi_ready),
         .bdi_valid(bdi_valid),
 		.bdi_type(bdi_type),
