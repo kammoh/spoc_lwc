@@ -146,7 +146,7 @@ generate
 		end
     end
 	else begin
-		always @(posedge clk, negedge rst) begin
+		always @(posedge clk or negedge rst) begin
 			if (rst == 1'b0)
 				fsm_state <= RESET_ST;
 			else

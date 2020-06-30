@@ -248,7 +248,7 @@ generate
 		end
     end
 	else begin
-		always @(posedge clk, negedge rst)
+		always @(posedge clk or negedge rst)
 		begin
 			if (rst == 1'b0)
 				fsm_state <= INIT_ST;
@@ -384,9 +384,12 @@ generate
         end
     end
 	else begin
-		always @(posedge clk, negedge rst)
+		always @(posedge clk or negedge rst)
         begin
-			if (rst == 1'b0 || init_trunc == 1) begin
+			if (rst == 1'b0) begin
+                trunc_mask <= 64'hFFFF_FFFF_FFFF_FFFF;
+                trunc_count <= 4'b1000;
+            end else if( init_trunc == 1) begin
                 trunc_mask <= 64'hFFFF_FFFF_FFFF_FFFF;
                 trunc_count <= 4'b1000;
             end else if (en_trunc == 1) begin
