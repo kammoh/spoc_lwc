@@ -101,89 +101,58 @@ localparam AD_TYPE = 4'b0001,
            KEY_WORDS = 3'b100,
 		   NPUB_WORDS = 3'b100;
 
+always @(posedge clk) begin
+	if (clr_ld_ctr == 1)
+			ld_ctr <= 0;
+			if (en_ld_ctr == 1)
+			ld_ctr <= ld_ctr + 1;
+	if (set_bdi_complete == 1)
+			bdi_complete <= 1;
+	if (reset_bdi_complete == 1)
+			bdi_complete <= 0;
+	if (set_bdo_complete == 1)
+			bdo_complete <= 1;
+	if (reset_bdo_complete == 1)
+			bdo_complete <= 0;
+	if (set_eoi_flag == 1)
+					eoi_flag <= 1;
+			if (reset_eoi_flag == 1)
+					eoi_flag <= 0;
+			if (set_eot_flag == 1)
+					eot_flag <= 1;
+			if (reset_eot_flag == 1)
+					eot_flag <= 0;
+		if (en_decrypt_reg == 1)
+			decrypt_reg <= decrypt;
+	if (store_bdi_type == 1)
+		if (bdi_type == AD_TYPE)
+			bdi_type_reg <= 1;
+		else
+			bdi_type_reg <= 0;
+	if (store_bdi_partial == 1)
+		if (bdi_size[1] == 1 || bdi_size[0] ==1)
+			bdi_partial_reg <= 1;
+		else
+			bdi_partial_reg <= 0;
+end // always
+
 generate
 	if (ASYNC_RSTN == 0) begin
 		always @(posedge clk) begin
 			if (rst == 1'b1) 
 				fsm_state <= RESET_ST; 
-			else begin
+			else
 				fsm_state <= next_fsm_state;
-				if (clr_ld_ctr == 1)
-				    ld_ctr <= 0;
-		        if (en_ld_ctr == 1)
-				    ld_ctr <= ld_ctr + 1;
-				if (set_bdi_complete == 1)
-				    bdi_complete <= 1;
-				if (reset_bdi_complete == 1)
-				    bdi_complete <= 0;
-				if (set_bdo_complete == 1)
-				    bdo_complete <= 1;
-				if (reset_bdo_complete == 1)
-				    bdo_complete <= 0;
-				if (set_eoi_flag == 1)
-		           eoi_flag <= 1;
-		        if (reset_eoi_flag == 1)
-		           eoi_flag <= 0;
-		        if (set_eot_flag == 1)
-		           eot_flag <= 1;
-		        if (reset_eot_flag == 1)
-		           eot_flag <= 0;
-			    if (en_decrypt_reg == 1)
-				   decrypt_reg <= decrypt;
-				if (store_bdi_type == 1)
-					if (bdi_type == AD_TYPE)
-						bdi_type_reg <= 1;
-					else
-						bdi_type_reg <= 0;
-				if (store_bdi_partial == 1)
-					if (bdi_size[1] == 1 || bdi_size[0] ==1)
-						bdi_partial_reg <= 1;
-					else
-						bdi_partial_reg <= 0;
-			end
 		end
     end
 	else begin
 		always @(posedge clk, negedge rst) begin
 			if (rst == 1'b0)
 				fsm_state <= RESET_ST;
-			else begin
+			else
 				fsm_state <= next_fsm_state;
-				if (clr_ld_ctr == 1)
-				    ld_ctr <= 0;
-		        if (en_ld_ctr == 1)
-				    ld_ctr <= ld_ctr + 1;
-				if (set_bdi_complete == 1)
-				    bdi_complete <= 1;
-				if (reset_bdi_complete == 1)
-				    bdi_complete <= 0;
-				if (set_bdo_complete == 1)
-				    bdo_complete <= 1;
-				if (reset_bdo_complete == 1)
-				    bdo_complete <= 0;
-				if (set_eoi_flag == 1)
-		           eoi_flag <= 1;
-		        if (reset_eoi_flag == 1)
-		           eoi_flag <= 0;
-		        if (set_eot_flag == 1)
-		           eot_flag <= 1;
-		        if (reset_eot_flag == 1)
-		           eot_flag <= 0;
-			    if (en_decrypt_reg == 1)
-				   decrypt_reg <= decrypt;
-				if (store_bdi_type == 1)
-					if (bdi_type == AD_TYPE)
-						bdi_type_reg <= 1;
-					else
-						bdi_type_reg <= 0;
-				if (store_bdi_partial == 1)
-					if (bdi_size[1] == 1 || bdi_size[0] ==1)
-						bdi_partial_reg <= 1;
-					else
-						bdi_partial_reg <= 0;
-			end
 		end
-    end
+	end // if
 endgenerate
 		   
 

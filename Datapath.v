@@ -370,17 +370,34 @@ d_ff #(WIDTH*4) state_reg(
 
 // serial truncator
 
-always @(posedge clk)
-begin
-	if (rst == 1'b1 || init_trunc == 1) begin
-		trunc_mask <= 64'hFFFF_FFFF_FFFF_FFFF;
-		trunc_count <= 4'b1000;
+generate
+	if (ASYNC_RSTN == 0) begin
+        always @(posedge clk)
+        begin
+            if (rst == 1'b1 || init_trunc == 1) begin
+                trunc_mask <= 64'hFFFF_FFFF_FFFF_FFFF;
+                trunc_count <= 4'b1000;
+            end else if (en_trunc == 1) begin
+                trunc_mask <= {trunc_mask[55:0], 8'h00};
+                trunc_count <= trunc_count - 1;
+            end
+        end
+    end
+	else begin
+		always @(posedge clk, negedge rst)
+        begin
+			if (rst == 1'b0 || init_trunc == 1) begin
+                trunc_mask <= 64'hFFFF_FFFF_FFFF_FFFF;
+                trunc_count <= 4'b1000;
+            end else if (en_trunc == 1) begin
+                trunc_mask <= {trunc_mask[55:0], 8'h00};
+                trunc_count <= trunc_count - 1;
+            end
+		end
+	end // if
+endgenerate
 
-	end else if (en_trunc == 1) begin
-		trunc_mask <= {trunc_mask[55:0], 8'h00};
-		trunc_count <= trunc_count - 1;
-	end
-end
+
 
 assign trunc_complete = (trunc_count == cum_size) ? 1 : 0;
 
