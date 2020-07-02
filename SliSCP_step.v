@@ -54,7 +54,7 @@ SB #(WIDTH) S3(
 .en_rnd_ctr(en_rnd_ctr),
 .sin(s3_in),
 .rc(rc1),
-// rnd_done is open
+.rnd_done(),
 .sout(s3_after_ssb)
 );
 

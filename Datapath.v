@@ -263,46 +263,46 @@ endgenerate
 always @(fsm_state or start or rnd_done or step_done)
 begin
 
-// defaults to eliminate latches
+    // defaults to eliminate latches
 
-en_rnd_ctr <= 0; // result assumed to not be ready
-next_fsm_state <= INIT_ST;
-en_step_ctr <= 0;
-done <= 0;
+    en_rnd_ctr = 0; // result assumed to not be ready
+    next_fsm_state = INIT_ST;
+    en_step_ctr = 0;
+    done = 0;
 
-      case (fsm_state)
+    case (fsm_state)
 
-	  INIT_ST: 
-      begin
-	    
-		if (start == 1) begin
-			en_rnd_ctr <= 1;
-			next_fsm_state <= RUN_ST;
-		end else begin
-			done <= 1;
-			next_fsm_state <= INIT_ST;
-			end
-		end
- 
-       RUN_ST:
-	   begin
-	   en_rnd_ctr <= 1;
-	   if (rnd_done == 1)begin
-            en_step_ctr <= 1;	   
-			if (step_done == 1) begin
-				done <= 1;
-				next_fsm_state <= INIT_ST;
-			end else
-				next_fsm_state <= RUN_ST;
-			end
-		else
-			next_fsm_state <= RUN_ST;
-		end
-		
-		default: begin 
-						next_fsm_state <= INIT_ST; // should never get here
-				  end
-		endcase
+    INIT_ST: 
+    begin
+    
+    if (start == 1) begin
+        en_rnd_ctr = 1;
+        next_fsm_state = RUN_ST;
+    end else begin
+        done = 1;
+        next_fsm_state = INIT_ST;
+        end
+    end
+
+    RUN_ST:
+    begin
+    en_rnd_ctr = 1;
+    if (rnd_done == 1)begin
+        en_step_ctr = 1;	   
+        if (step_done == 1) begin
+            done = 1;
+            next_fsm_state = INIT_ST;
+        end else
+            next_fsm_state = RUN_ST;
+        end
+    else
+        next_fsm_state = RUN_ST;
+    end
+    
+    default: begin 
+                    next_fsm_state = INIT_ST; // should never get here
+                end
+    endcase
 end
 // opt.oz.pad
 
