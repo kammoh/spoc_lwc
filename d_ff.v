@@ -1,7 +1,6 @@
-`include "LWC_constants.vh"
 //D FF
 module d_ff(clk, rst, en, d, q);
-parameter WIDTH = 32;
+parameter WIDTH = 32, G_ASYNC_RSTN = 0;
 
 
 input clk, rst, en;
@@ -13,7 +12,7 @@ wire [WIDTH-1:0] d;
 reg [WIDTH-1:0] q;
 
 generate
-	if (ASYNC_RSTN == 0) begin
+	if (G_ASYNC_RSTN == 0) begin
 		always @(posedge clk)
 		begin
 			if (rst == 1'b1) begin

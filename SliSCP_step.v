@@ -4,19 +4,19 @@
 // 05-31-2019
 
 module SLiSCP_step(
-clk,
-rst,
-en_rnd_ctr,
-sin,
-rc1,
-rc0,
-sc1,
-sc0,
-rnd_done,
-sout
+  clk,
+  rst,
+  en_rnd_ctr,
+  sin,
+  rc1,
+  rc0,
+  sc1,
+  sc0,
+  rnd_done,
+  sout
 );
 
-parameter WIDTH = 48;
+parameter WIDTH = 48, G_ASYNC_RSTN = 0;
 
 // global inputs
 input clk, rst, en_rnd_ctr;
@@ -38,24 +38,24 @@ assign s1_in = sin[WIDTH*3-1:WIDTH*2];
 assign s2_in = sin[WIDTH*2-1:WIDTH*1];
 assign s3_in = sin[WIDTH*1-1:WIDTH*0];
 
-SB #(WIDTH) S1(
-.clk(clk),
-.rst(rst),
-.en_rnd_ctr(en_rnd_ctr),
-.sin(s1_in),
-.rc(rc0),
-.rnd_done(rnd_done),
-.sout(s1_after_ssb)
+SB #(.WIDTH(WIDTH), .G_ASYNC_RSTN(G_ASYNC_RSTN)) S1(
+  .clk(clk),
+  .rst(rst),
+  .en_rnd_ctr(en_rnd_ctr),
+  .sin(s1_in),
+  .rc(rc0),
+  .rnd_done(rnd_done),
+  .sout(s1_after_ssb)
 );
 
-SB #(WIDTH) S3(
-.clk(clk),
-.rst(rst),
-.en_rnd_ctr(en_rnd_ctr),
-.sin(s3_in),
-.rc(rc1),
-.rnd_done(),
-.sout(s3_after_ssb)
+SB #(.WIDTH(WIDTH), .G_ASYNC_RSTN(G_ASYNC_RSTN)) S3(
+  .clk(clk),
+  .rst(rst),
+  .en_rnd_ctr(en_rnd_ctr),
+  .sin(s3_in),
+  .rc(rc1),
+  .rnd_done(),
+  .sout(s3_after_ssb)
 );
 
 assign s0_after_asc = s0_in ^ sc0_step;

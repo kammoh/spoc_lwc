@@ -3,46 +3,44 @@
 // Virginia Tech
 // 05-31-2019
 
-`include "LWC_constants.vh"
-
 module Datapath(
-clk,
-rst,
-start,
-done,
-bdi,
-key,
-bdo,
-init_state,
-en_key,
-en_npub,
-en_bdi,
-clr_bdi,
-en_cum_size,
-en_trunc,
-init_trunc,
-bdi_partial_reg,
-msg_auth,
-bdi_type,
-bdi_size,
-decrypt_reg,
+    clk,
+    rst,
+    start,
+    done,
+    bdi,
+    key,
+    bdo,
+    init_state,
+    en_key,
+    en_npub,
+    en_bdi,
+    clr_bdi,
+    en_cum_size,
+    en_trunc,
+    init_trunc,
+    bdi_partial_reg,
+    msg_auth,
+    bdi_type,
+    bdi_size,
+    decrypt_reg,
 
-trunc_complete,
-bdi_complete,
-bdo_complete,
-en_state_in,
-sel_tag,
-init_lock,
-lock_tag_state,
-ctrl_word
-
+    trunc_complete,
+    bdi_complete,
+    bdo_complete,
+    en_state_in,
+    sel_tag,
+    init_lock,
+    lock_tag_state,
+    ctrl_word
 );
 
 parameter WIDTH = 48,
 		  PW = 32,
 		  SW = 32,
           G_KEY_SIZE = 128,
-		  G_NPUB_SIZE = 128;
+		  G_NPUB_SIZE = 128,
+          G_ASYNC_RSTN = 0;
 
 localparam MAXCTR = 17,
            AD_TYPE = 4'b0001;
@@ -106,28 +104,28 @@ assign init_state_load = {step_out[191:144], (npub_reg[63:32] ^ step_out[143:112
 
 assign step_in = (init_state == 1) ? load_spoc_64 : state;
 
-SLiSCP_step #(WIDTH) step_func(
-.clk(clk),
-.rst(rst),
-.en_rnd_ctr(en_rnd_ctr), 
-.sin(step_in),
-.rc1(rc1),
-.rc0(rc0),
-.sc1(sc1),
-.sc0(sc0),
-.rnd_done(rnd_done),
-.sout(step_out)
+SLiSCP_step #(.WIDTH(WIDTH), .G_ASYNC_RSTN(G_ASYNC_RSTN)) step_func(
+    .clk(clk),
+    .rst(rst),
+    .en_rnd_ctr(en_rnd_ctr), 
+    .sin(step_in),
+    .rc1(rc1),
+    .rc0(rc0),
+    .sc1(sc1),
+    .sc0(sc0),
+    .rnd_done(rnd_done),
+    .sout(step_out)
 );
 
 assign step_done = (step_ctr == MAXCTR) ? 1 : 0;
 assign next_step_ctr = (step_ctr == MAXCTR) ? 0 : step_ctr + 1;
 
-d_ff #(5) step_ctr_reg(
-.clk(clk),
-.rst(rst),
-.en(en_step_ctr),
-.d(next_step_ctr),
-.q(step_ctr)
+d_ff #(.WIDTH(5), .G_ASYNC_RSTN(G_ASYNC_RSTN)) step_ctr_reg(
+    .clk(clk),
+    .rst(rst),
+    .en(en_step_ctr),
+    .d(next_step_ctr),
+    .q(step_ctr)
 );
 
 // rc0 LUT
@@ -238,7 +236,7 @@ localparam INIT_ST = 1'b0,
 
 
 generate
-	if (ASYNC_RSTN == 0) begin
+	if (G_ASYNC_RSTN == 0) begin
 		always @(posedge clk)
 		begin
 			if (rst == 1'b1)
@@ -323,22 +321,22 @@ assign bdi_pad_half = (cum_size == 4'b0001) ? {bdi_pad_input[63:56], 8'b1000_000
 assign next_bdi_reg = (clr_bdi == 1) ? 0 :
                       (bdi_complete == 0) ? {bdi, {{32}{1'b0}}} : {bdi_reg[63:32], bdi};
 
-d_ff #(64) bdi_rg(
-.clk(clk),
-.rst(rst),
-.en(en_bdi),
-.d(next_bdi_reg),
-.q(bdi_reg)
+d_ff #(.WIDTH(64), .G_ASYNC_RSTN(G_ASYNC_RSTN)) bdi_rg(
+    .clk(clk),
+    .rst(rst),
+    .en(en_bdi),
+    .d(next_bdi_reg),
+    .q(bdi_reg)
 );
 
 assign next_cum_size = (clr_bdi == 1) ? 0 : cum_size + {1'b0, bdi_size};
 
-d_ff #(4) cum_size_rg(
-.clk(clk),
-.rst(rst),
-.en(en_cum_size),
-.d(next_cum_size),
-.q(cum_size)
+d_ff #(.WIDTH(4), .G_ASYNC_RSTN(G_ASYNC_RSTN)) cum_size_rg(
+    .clk(clk),
+    .rst(rst),
+    .en(en_cum_size),
+    .d(next_cum_size),
+    .q(cum_size)
 );
 
 // proc
@@ -358,12 +356,12 @@ assign next_state = (init_lock == 1) ? init_state_load :
 					
 assign en_state = rnd_done | en_state_in;
 
-d_ff #(WIDTH*4) state_reg(
-.clk(clk),
-.rst(rst),
-.en(en_state),
-.d(next_state),
-.q(state)
+d_ff #(.WIDTH(WIDTH*4), .G_ASYNC_RSTN(G_ASYNC_RSTN)) state_reg(
+    .clk(clk),
+    .rst(rst),
+    .en(en_state),
+    .d(next_state),
+    .q(state)
 );
 
 // output chain
@@ -371,7 +369,7 @@ d_ff #(WIDTH*4) state_reg(
 // serial truncator
 
 generate
-	if (ASYNC_RSTN == 0) begin
+	if (G_ASYNC_RSTN == 0) begin
         always @(posedge clk)
         begin
             if (rst == 1'b1 || init_trunc == 1) begin

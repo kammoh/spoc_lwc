@@ -3,61 +3,61 @@
 // Virginia Tech
 // 05-31-2019
 
-`include "LWC_constants.vh"
-
 module Controller(
 
-// input
+    // input
 
-// AEAD
-clk,
-rst,
-bdi_valid,
-bdo_ready,
-key_update,
-key_valid,
-bdi_eoi,
-bdi_eot,
-bdi_type,
-// bdi_partial,
-bdi_size,
-decrypt,
-msg_auth_ready,
+    // AEAD
+    clk,
+    rst,
+    bdi_valid,
+    bdo_ready,
+    key_update,
+    key_valid,
+    bdi_eoi,
+    bdi_eot,
+    bdi_type,
+    // bdi_partial,
+    bdi_size,
+    decrypt,
+    msg_auth_ready,
 
-// Datapath
-perm_done,
-trunc_complete,
+    // Datapath
+    perm_done,
+    trunc_complete,
 
-//output
+    //output
 
-// AEAD
-bdi_ready,
-bdo_valid,
-key_ready,
-bdo_valid_bytes,
-end_of_block,
-msg_auth_valid,
+    // AEAD
+    bdi_ready,
+    bdo_valid,
+    key_ready,
+    bdo_valid_bytes,
+    end_of_block,
+    msg_auth_valid,
 
-// Datapath
-sel_tag,
-en_key,
-en_npub,
-en_bdi,
-clr_bdi,
-en_cum_size,
-en_trunc,
-init_trunc,
-start,
-decrypt_reg,
-bdi_partial_reg,
-init_state,
-init_lock,
-en_state,
-lock_tag_state,
-bdi_complete,
-bdo_complete,
-ctrl_word
+    // Datapath
+    sel_tag,
+    en_key,
+    en_npub,
+    en_bdi,
+    clr_bdi,
+    en_cum_size,
+    en_trunc,
+    init_trunc,
+    start,
+    decrypt_reg,
+    bdi_partial_reg,
+    init_state,
+    init_lock,
+    en_state,
+    lock_tag_state,
+    bdi_complete,
+    bdo_complete,
+    ctrl_word
 );
+
+parameter G_ASYNC_RSTN = 0;
 
 input clk, rst, bdi_valid, key_update, key_valid, bdi_eoi, bdi_eot, /*bdi_partial,*/ decrypt, msg_auth_ready, perm_done; 
 input bdo_ready, trunc_complete;
@@ -137,7 +137,7 @@ always @(posedge clk) begin
 end // always
 
 generate
-	if (ASYNC_RSTN == 0) begin
+	if (G_ASYNC_RSTN == 0) begin
 		always @(posedge clk) begin
 			if (rst == 1'b1) 
 				fsm_state <= RESET_ST; 
@@ -156,48 +156,46 @@ generate
 endgenerate
 		   
 
-always @(fsm_state or key_update or key_valid or bdi_valid or ld_ctr or bdi_eoi or bdi_eot or perm_done or eoi_flag or
-         eot_flag or bdi_complete or bdo_complete or perm_done or bdi_type_reg or bdo_ready or decrypt_reg or msg_auth_ready
-		 or /*bdi_partial or*/ trunc_complete)
+always @*
 begin
 
-//defaults
+	//defaults
 
-key_ready = 0;
-en_key = 0;
-clr_ld_ctr = 0;
-en_ld_ctr = 0;
-en_npub = 0;
-en_decrypt_reg = 0;
-set_eot_flag = 0;
-reset_eot_flag = 0;
-set_eot_flag = 0;
-reset_eot_flag = 0;
-set_bdi_complete = 0;
-reset_bdi_complete = 0;
-set_bdo_complete = 0;
-reset_bdo_complete = 0;
-set_eoi_flag = 0;
-reset_eoi_flag = 0;
-bdi_ready =0;
-bdo_valid =0;
-msg_auth_valid =0;
-bdo_valid_bytes = 4'b1111;
-end_of_block =0;
-sel_tag =0;
-clr_bdi =0;
-en_bdi =0;
-start = 0;
-init_state = 0;
-init_lock = 0;
-en_state = 0;
-lock_tag_state = 0;
-ctrl_word = 2'b0;
-store_bdi_type = 0;
-store_bdi_partial = 0;
-en_cum_size = 0;
-en_trunc = 0;
-init_trunc = 0;
+	key_ready = 0;
+	en_key = 0;
+	clr_ld_ctr = 0;
+	en_ld_ctr = 0;
+	en_npub = 0;
+	en_decrypt_reg = 0;
+	set_eot_flag = 0;
+	reset_eot_flag = 0;
+	set_eot_flag = 0;
+	reset_eot_flag = 0;
+	set_bdi_complete = 0;
+	reset_bdi_complete = 0;
+	set_bdo_complete = 0;
+	reset_bdo_complete = 0;
+	set_eoi_flag = 0;
+	reset_eoi_flag = 0;
+	bdi_ready =0;
+	bdo_valid =0;
+	msg_auth_valid =0;
+	bdo_valid_bytes = 4'b1111;
+	end_of_block =0;
+	sel_tag =0;
+	clr_bdi =0;
+	en_bdi =0;
+	start = 0;
+	init_state = 0;
+	init_lock = 0;
+	en_state = 0;
+	lock_tag_state = 0;
+	ctrl_word = 2'b0;
+	store_bdi_type = 0;
+	store_bdi_partial = 0;
+	en_cum_size = 0;
+	en_trunc = 0;
+	init_trunc = 0;
 
 
 	case (fsm_state)

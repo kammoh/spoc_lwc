@@ -4,16 +4,16 @@
 // 05-31-2019
 
 module SB(
-clk,
-rst,
-en_rnd_ctr,
-sin,
-rc,
-rnd_done,
-sout
+  clk,
+  rst,
+  en_rnd_ctr,
+  sin,
+  rc,
+  rnd_done,
+  sout
 );
 
-parameter WIDTH = 48;
+parameter WIDTH = 48, G_ASYNC_RSTN = 0;
 localparam MAXCTR = 3'b101;
 
 // global inputs
@@ -33,12 +33,12 @@ wire [2:0] next_rnd_ctr, rnd_ctr;
 assign rnd_done = (rnd_ctr == MAXCTR) ? 1 : 0;
 assign next_rnd_ctr = (rnd_ctr == MAXCTR) ? 0 : rnd_ctr + 1;
 
-d_ff #(3) rnd_ctr_reg(
-.clk(clk),
-.rst(rst),
-.en(en_rnd_ctr),
-.d(next_rnd_ctr),
-.q(rnd_ctr)
+d_ff #(.WIDTH(3), .G_ASYNC_RSTN(G_ASYNC_RSTN)) rnd_ctr_reg(
+    .clk(clk),
+    .rst(rst),
+    .en(en_rnd_ctr),
+    .d(next_rnd_ctr),
+    .q(rnd_ctr)
 );
 
 assign lower_half_input = (rnd_ctr ==0) ? sin[WIDTH/2-1:0] : status[WIDTH/2-1:0];
@@ -49,21 +49,22 @@ assign lower_half = {upper_half[WIDTH/2-1-5:0],upper_half[WIDTH/2-1:WIDTH/2-1-4]
 assign next_status = {lower_half, upper_half};
 assign sout = next_status;
 
-d_ff #(WIDTH) status_reg(
-.clk(clk),
-.rst(rst),
-.en(en_rnd_ctr),
-.d(next_status),
-.q(status)
+d_ff #(.WIDTH(WIDTH), .G_ASYNC_RSTN(G_ASYNC_RSTN)) status_reg(
+    .clk(clk),
+    .rst(rst),
+    .en(en_rnd_ctr),
+    .d(next_status),
+    .q(status)
 );
 
-assign next_rc_reg = {1'b0, rc_rnd[6:1]};
+assign next_rc_reg = {2'b0, rc_rnd[6:1]};
 
-d_ff #(8) rc_rg(
-.clk(clk),
-.rst(rst),
-.en(en_rnd_ctr),
-.d(next_rc_reg),
-.q(rc_reg)
+d_ff #(.WIDTH(8), .G_ASYNC_RSTN(G_ASYNC_RSTN)) rc_rg(
+    .clk(clk),
+    .rst(rst),
+    .en(en_rnd_ctr),
+    .d(next_rc_reg),
+    .q(rc_reg)
 );
+
 endmodule

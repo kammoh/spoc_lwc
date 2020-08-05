@@ -35,7 +35,9 @@ module CryptoCore(
 		msg_auth_ready,
         msg_auth_valid
     );
-	
+
+parameter G_ASYNC_RSTN = 0;
+
 input clk, rst, key_valid, key_update, hash_in, decrypt_in, bdi_valid, bdi_eot, bdi_eoi, bdo_ready, msg_auth_ready;
 input [2:0] bdi_size;
 input [3:0] bdi_type, bdi_valid_bytes, bdi_pad_loc;
@@ -52,7 +54,7 @@ wire [1:0] ctrl_word;
 
 assign bdo_type = 0;
 
-Datapath data_path_inst(
+Datapath #(.G_ASYNC_RSTN(G_ASYNC_RSTN)) data_path_inst(
         .clk(clk),
         .rst(rst),
 
@@ -89,7 +91,7 @@ Datapath data_path_inst(
 		.ctrl_word(ctrl_word)
     );
 
-Controller ctrl_inst(
+Controller #(.G_ASYNC_RSTN(G_ASYNC_RSTN)) ctrl_inst(
         .clk(clk),
         .rst(rst),
 
